@@ -1,5 +1,5 @@
-create database BTL100
-use BTL100
+create database BTL08
+use BTL08
 
 select *from tbl_Media
 select *from tbl_Category
@@ -71,7 +71,7 @@ INSERT INTO tbl_Answer(Question_id, choice,is_choice ,grade)
 VALUES (10, 'C', 0, 1); 
  
 select *
-from tbl_Answer Answer
+from tbl_Answer
 
 
 --thêm Tbl_User_Quiz
