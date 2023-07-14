@@ -1,6 +1,8 @@
 CREATE DATABASE QuanLyCuaHangSach
+
 USE QuanLyCuaHangSach
 GO
+
 DROP TABLE Sach
 DROP TABLE DonHang
 DROP TABLE KhachHang
@@ -33,6 +35,15 @@ CREATE TABLE KhachHang (
 );
 SELECT * FROM KhachHang
 
+CREATE TABLE ChiTietDonHang (
+    MaDonHang INT,
+    MaSach INT,
+    SoLuong INT,
+    FOREIGN KEY (MaDonHang) REFERENCES DonHang(MaDonHang),
+    FOREIGN KEY (MaSach) REFERENCES Sach(MaSach)
+);
+SELECT * FROM ChiTietDonHang
+
 
 -- Chèn dữ liệu vào bảng Sách
 INSERT INTO Sach (MaSach, TenSach, NamXuatBan, DonGia, TheLoai, SoLuong)
@@ -42,6 +53,10 @@ VALUES
     (3, 'Sách kinh tế C', 2018, 19.99, 'Kinh tế', 8),
     (4, 'Sách kĩ thuật D', 2021, 25.99, 'Kĩ thuật', 5),
     (5, 'Sách tâm lý E', 2022, 14.99, 'Tâm lý', 12);
+
+INSERT INTO Sach (MaSach, TenSach, NamXuatBan, DonGia, TheLoai, SoLuong)
+VALUES (6, 'Tâm lý dân tộc An Nam', 2023, 29.99, 'Tâm lý', 20);
+
 
 -- Chèn dữ liệu vào bảng Khách hàng
 INSERT INTO KhachHang (MaKhachHang, TenKhachHang, DienThoai, DiaChi, Email, MaSoThue)
@@ -65,3 +80,34 @@ VALUES
     (2, 3, 1),
     (3, 4, 2),
     (3, 5, 1);
+
+
+
+--C/ Các yêu cầu trong ngôn ngữ SQL:
+--1. Đưa ra thông tin những quyển sách mà số lượng còn lại nhỏ hơn 10 cuốn:
+SELECT * FROM Sach WHERE SoLuong < 10;
+
+--2. Cho biết sách có tên 'Tâm lý dân tộc An Nam' đã bán được bao nhiêu cuốn?
+SELECT SUM(SoLuong) AS TongSoLuong FROM Sach WHERE TenSach = 'Tâm lý dân tộc An Nam';
+
+--3. Cho biết tổng giá trị tất cả các đơn hàng mà khách có mã '01231' đã mua từ trước đến ngày hiện tại?
+SELECT SUM(DonGia * SoLuong) AS TongGiaTri
+FROM Sach
+JOIN DonHang ON Sach.MaSach = DonHang.MaSach
+WHERE DonHang.MaKhachHang = '01231' AND DonHang.NgayMuaHang <= CURDATE();
+
+--4. Tạo một thủ tục lưu trữ nhận tham số đầu vào là mã sách, 
+--hiển thị thông tin số lượng cuốn sách đã bán, và số lượng còn lại trong cửa hàng.
+CREATE PROCEDURE GetBookInfo(IN MaSach INT)
+BEGIN
+    SELECT SUM(SoLuong) AS SoLuongDaBan, SoLuong AS SoLuongConLai
+    FROM Sach
+    JOIN DonHang ON Sach.MaSach = DonHang.MaSach
+    WHERE Sach.MaSach = MaSach;
+END;
+
+--5. Xoá toàn bộ thông tin liên quan đến các đơn hàng trong ngày '25/06/2023':
+DELETE FROM DonHang WHERE NgayMuaHang = '2023-06-25';
+
+
+
